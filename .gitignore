@@ -133,3 +133,4 @@ dmypy.json
 *.ini
 
 /notebooks
+/weights
