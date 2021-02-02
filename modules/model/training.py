@@ -36,10 +36,6 @@ def train_model(model: torch.nn.Module, num_epochs: int,
     device = torch.device(device)
 
     file_name = datetime.now().strftime("%d-%m-%Y-%H:%M:%S")
-    weights_path = os.path.join(weights_dir,
-                                f'{file_name}.pkl')
-    report_path = os.path.join(report_dir,
-                               f'{file_name}.json')
 
     model.to(device=device)
 
@@ -74,8 +70,8 @@ def train_model(model: torch.nn.Module, num_epochs: int,
         print(epoch_metrics_dict)
 
         print_report(metrics=epoch_metrics_dict)
-        save_report(report_path=report_path, metrics=epoch_metrics_dict, epoch_idx=epoch)
-        save_weights(model=model, metrics_list=metrics_list, weights_path=weights_path)
+        save_report(report_dir=report_dir, file_name=file_name, metrics=epoch_metrics_dict, epoch_idx=epoch)
+        save_weights(model=model, metrics_list=metrics_list, weights_dir=weights_dir, file_name=file_name)
 
     return metrics_list
 

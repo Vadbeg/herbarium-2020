@@ -21,14 +21,21 @@ def print_report(metrics: Dict[str, List[float]]):
               f'{Fore.RESET}')
 
 
-def save_weights(model: torch.nn.Module, metrics_list, weights_path: str):
+def save_weights(model: torch.nn.Module, metrics_list, weights_dir: str, file_name: str):
     """
     Save weights to weights_dir
 
     :param model: model to save
     :param metrics_list: list with dicts of metrics
-    :param weights_path: path to save weights
+    :param weights_dir: dir to save weights in
+    :param file_name: name of the report file
     """
+
+    if not os.path.exists(weights_dir):
+        os.makedirs(name=weights_dir)
+
+    weights_path = os.path.join(weights_dir,
+                                f'{file_name}.json')
 
     if len(metrics_list) > 1:
         valid_loss_average_list = [float(np.mean(curr_metric['valid_loss'])) for curr_metric in metrics_list]
@@ -43,14 +50,21 @@ def save_weights(model: torch.nn.Module, metrics_list, weights_path: str):
                   f'{Fore.RESET}')
 
 
-def save_report(report_path: str, metrics: Dict[str, List[float]], epoch_idx: int):
+def save_report(report_dir: str, file_name: str, metrics: Dict[str, List[float]], epoch_idx: int):
     """
     Saves report on disk
 
-    :param report_path: path to the report
+    :param report_dir: folder to the report
+    :param file_name: name of the report file
     :param metrics: metrics for current epoch
     :param epoch_idx: current epoch idx
     """
+
+    if not os.path.exists(report_dir):
+        os.makedirs(name=report_dir)
+
+    report_path = os.path.join(report_dir,
+                               f'{file_name}.pt')
 
     if os.path.exists(report_path):
         with open(report_path, mode='r', encoding='UTF-8') as file:
