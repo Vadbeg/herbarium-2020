@@ -103,14 +103,15 @@ def print_report(report: Dict[str, List[float]]):
 
 
 if __name__ == '__main__':
-    config_path = '/home/vadbeg/Projects/Kaggle/cassava-leaf-disease/config.ini'
+    config_path = '/home/vadbeg/Projects/Kaggle/herbarium-2020/config.ini'
     config = load_config(config_path=config_path)
 
-    reports_folder = config.get('Model', 'reports_path')
+    reports_folder = config.get('Model', 'reports_dir')
 
     report_name = parse_arguments()
 
     report_path = os.path.join(reports_folder, report_name)
+
     metrics_dict = parse_report(report_path=report_path)
 
     print_report(report=metrics_dict)

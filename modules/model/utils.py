@@ -35,7 +35,7 @@ def save_weights(model: torch.nn.Module, metrics_list, weights_dir: str, file_na
         os.makedirs(name=weights_dir)
 
     weights_path = os.path.join(weights_dir,
-                                f'{file_name}.json')
+                                f'{file_name}.pt')
 
     if len(metrics_list) > 1:
         valid_loss_average_list = [float(np.mean(curr_metric['valid_loss'])) for curr_metric in metrics_list]
@@ -64,7 +64,7 @@ def save_report(report_dir: str, file_name: str, metrics: Dict[str, List[float]]
         os.makedirs(name=report_dir)
 
     report_path = os.path.join(report_dir,
-                               f'{file_name}.pt')
+                               f'{file_name}.json')
 
     if os.path.exists(report_path):
         with open(report_path, mode='r', encoding='UTF-8') as file:

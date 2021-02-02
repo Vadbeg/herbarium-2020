@@ -20,6 +20,7 @@ if __name__ == '__main__':
     train_dataframe_path = config.get('Data', 'train_dataframe_path')
 
     weights_dir = config.get('Model', 'weights_dir')
+    reports_dir = config.get('Model', 'reports_dir')
     device = config.get('Model', 'device')
     model_type = config.get('Model', 'model_type')
     image_size = tuple(json.loads(config.get('Model', 'image_size')))
@@ -55,5 +56,6 @@ if __name__ == '__main__':
                 train_dataloader=train_dataloader,
                 valid_dataloader=valid_dataloader,
                 device=device,
+                report_dir=reports_dir,
                 weights_dir=weights_dir)
 
