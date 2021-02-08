@@ -99,7 +99,7 @@ def print_report(report: Dict[str, List[float]]):
     print(f'Best epoch: {Fore.YELLOW}{index}{Fore.RESET}')
 
     for metric_name, metric_values in report.items():
-        print(f'{metric_name}: {Fore.YELLOW}{metric_values[index]}{Fore.RESET}')
+        print(f'{metric_name}: {Fore.YELLOW}{metric_values[index]:.3f}{Fore.RESET}')
 
 
 if __name__ == '__main__':

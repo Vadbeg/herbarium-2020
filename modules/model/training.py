@@ -67,8 +67,6 @@ def train_model(model: torch.nn.Module, num_epochs: int,
 
         metrics_list.append(epoch_metrics_dict)
 
-        print(epoch_metrics_dict)
-
         print_report(metrics=epoch_metrics_dict)
         save_report(report_dir=report_dir, file_name=file_name, metrics=epoch_metrics_dict, epoch_idx=epoch)
         save_weights(model=model, metrics_list=metrics_list, weights_dir=weights_dir, file_name=file_name)

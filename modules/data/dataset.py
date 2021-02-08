@@ -58,7 +58,7 @@ class ImageDataset(Dataset):
 
         return image
 
-    def __getitem__(self, idx: int) -> Dict[str, Union[np.ndarray, int]]:
+    def __getitem__(self, idx: int) -> Dict[str, Union[np.ndarray, int, torch.Tensor]]:
         """
         Reads dataset item from disk
 

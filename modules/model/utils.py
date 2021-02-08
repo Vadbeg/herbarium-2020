@@ -44,7 +44,7 @@ def save_weights(model: torch.nn.Module, metrics_list, weights_dir: str, file_na
         valid_loss_list_min = round(min(valid_loss_average_list[:-1]), 4)
 
         if valid_loss_list_last < valid_loss_list_min:
-            torch.save(model.state_dict(), weights_path)
+            torch.save(model, weights_path)
 
             print(f'{Fore.GREEN}Weights were saved. {valid_loss_list_min} --> {valid_loss_list_last}'
                   f'{Fore.RESET}')
@@ -82,3 +82,16 @@ def save_report(report_dir: str, file_name: str, metrics: Dict[str, List[float]]
 
     with open(report_path, mode='w', encoding='UTF-8') as file:
         json.dump(json_loaded, file, indent=4)
+
+
+def load_model(model_path: str) -> torch.nn.Module:
+    """
+    Loads model from give file
+
+    :param model_path: .pt file with model
+    :return: torch model
+    """
+
+    model = torch.load(f=model_path)
+
+    return model

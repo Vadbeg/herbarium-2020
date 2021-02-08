@@ -3,6 +3,8 @@
 import timm
 import torch
 
+import torchsummary
+
 
 class HerbariumNet(torch.nn.Module):
     """Neural network class"""
@@ -57,3 +59,9 @@ class HerbariumNet(torch.nn.Module):
         x = self.classifier(x)
 
         return x
+
+
+if __name__ == '__main__':
+    network = HerbariumNet(model_type='resnet18', pretrained=False, num_of_output_nodes=32093).to('cpu')
+
+    torchsummary.summary(network, input_size=(3, 320, 320), device='cpu')

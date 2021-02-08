@@ -5,10 +5,11 @@ import json
 import torch
 import pandas as pd
 
+from modules.model.training import train_model
 from modules.model.network import HerbariumNet
+from modules.model.losses import LabelSmoothingLoss
 from modules.data.dataloader import create_dataloader, split_dataset
 from modules.data.augs import train_augmentations, valid_augmentations
-from modules.model.training import train_model
 from modules.utils import load_config
 
 
@@ -28,6 +29,7 @@ if __name__ == '__main__':
     batch_size = config.getint('Model', 'batch_size')
     learning_rate = config.getfloat('Model', 'learning_rate')
     num_of_output_nodes = config.getint('Model', 'num_of_output_nodes')
+    label_smoothing = config.getfloat('Model', 'label_smoothing')
 
     train_dataframe = pd.read_csv(train_dataframe_path)
     # train_dataframe = train_dataframe.sample(frac=0.1)
@@ -47,7 +49,8 @@ if __name__ == '__main__':
     model = HerbariumNet(model_type=model_type, pretrained=True, num_of_output_nodes=num_of_output_nodes)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate)
-    loss_func = torch.nn.CrossEntropyLoss()
+    # loss_func = torch.nn.CrossEntropyLoss()
+    loss_func = LabelSmoothingLoss(num_classes=num_of_output_nodes, smoothing=label_smoothing)
 
     train_model(model=model,
                 num_epochs=50,
