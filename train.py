@@ -7,6 +7,7 @@ import pandas as pd
 
 from modules.model.training import train_model
 from modules.model.network import HerbariumNet
+from modules.model.custom_layers import ArcMarginProduct
 from modules.model.losses import LabelSmoothingLoss
 from modules.data.dataloader import create_dataloader, split_dataset
 from modules.data.augs import train_augmentations, valid_augmentations
@@ -46,11 +47,14 @@ if __name__ == '__main__':
     train_dataloader = create_dataloader(dataset=train_dataset, batch_size=batch_size)
     valid_dataloader = create_dataloader(dataset=valid_dataset, batch_size=batch_size)
 
-    model = HerbariumNet(model_type=model_type, pretrained=True, num_of_output_nodes=num_of_output_nodes)
+    model = HerbariumNet(model_type=model_type, pretrained=True,
+                         num_of_output_nodes=num_of_output_nodes, use_arc_face=True)
+    arc_margin = ArcMarginProduct(in_features=model.n_features, out_features=num_of_output_nodes,
+                                  s=30, m=0.5).to(device=torch.device(device))
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate)
-    # loss_func = torch.nn.CrossEntropyLoss()
-    loss_func = LabelSmoothingLoss(num_classes=num_of_output_nodes, smoothing=label_smoothing)
+    loss_func = torch.nn.CrossEntropyLoss()
+    # loss_func = LabelSmoothingLoss(num_classes=num_of_output_nodes, smoothing=label_smoothing)
 
     train_model(model=model,
                 num_epochs=50,
@@ -60,5 +64,5 @@ if __name__ == '__main__':
                 valid_dataloader=valid_dataloader,
                 device=device,
                 report_dir=reports_dir,
-                weights_dir=weights_dir)
+                weights_dir=weights_dir, arc_face_module=arc_margin)
 

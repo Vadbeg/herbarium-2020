@@ -3,7 +3,7 @@
 import os
 import sys
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import torch
 from tqdm import tqdm
@@ -18,7 +18,8 @@ def train_model(model: torch.nn.Module, num_epochs: int,
                 train_dataloader: DataLoader, valid_dataloader: DataLoader,
                 device: str = 'cuda:0',
                 report_dir: str = 'reports',
-                weights_dir: str = 'weights') -> List[Dict[str, List[float]]]:
+                weights_dir: str = 'weights',
+                arc_face_module: Optional[torch.nn.Module] = None) -> List[Dict[str, List[float]]]:
     """
     Performs whole training process
 
@@ -30,6 +31,7 @@ def train_model(model: torch.nn.Module, num_epochs: int,
     :param device: device to calculate on
     :param report_dir: directory to save reports
     :param weights_dir: directory to save weights
+    :param arc_face_module: if is provided, then arcFace is used during training
     :return: list of dicts with metrics
     """
 
@@ -47,7 +49,8 @@ def train_model(model: torch.nn.Module, num_epochs: int,
         model.train()
         train_metrics = train_one_epoch(model=model, dataloader=train_dataloader,
                                         epoch_idx=epoch, loss_func=loss_func,
-                                        optimizer=optimizer, device=device)
+                                        optimizer=optimizer, device=device,
+                                        arc_face_module=arc_face_module)
         train_epoch_loss_list, train_epoch_accuracy_list, train_epoch_f1_list = train_metrics
 
         epoch_metrics_dict['train_loss'] = train_epoch_loss_list
@@ -58,7 +61,7 @@ def train_model(model: torch.nn.Module, num_epochs: int,
         if valid_dataloader:
             valid_metrics = valid_one_epoch(model=model, dataloader=valid_dataloader,
                                             epoch_idx=epoch, loss_func=loss_func,
-                                            device=device)
+                                            device=device, arc_face_module=arc_face_module)
             valid_epoch_loss_list, valid_epoch_accuracy_list, valid_epoch_f1_list = valid_metrics
 
             epoch_metrics_dict['valid_loss'] = valid_epoch_loss_list
@@ -76,7 +79,8 @@ def train_model(model: torch.nn.Module, num_epochs: int,
 
 def train_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
                     optimizer, loss_func,
-                    epoch_idx: int, device: torch.device):
+                    epoch_idx: int, device: torch.device,
+                    arc_face_module: Optional[torch.nn.Module] = None):
     """
     Performs training phase
 
@@ -86,6 +90,7 @@ def train_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
     :param loss_func: loss functions used
     :param epoch_idx: index of the epoch
     :param device: device to calculate on
+    :param arc_face_module: if is provided, then arcFace is used during training
     :return: tuple with metrics
     """
 
@@ -102,6 +107,9 @@ def train_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
         label = dataset_element['label'].to(device)
 
         result = model(image)
+
+        if arc_face_module:
+            result = arc_face_module(result, label)
 
         loss_value = loss_func(result, label)
 
@@ -128,7 +136,8 @@ def train_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
 
 def valid_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
                     loss_func,
-                    epoch_idx: int, device: torch.device):
+                    epoch_idx: int, device: torch.device,
+                    arc_face_module: Optional[torch.nn.Module] = None):
     """
     Performs evaluation phase
 
@@ -137,6 +146,7 @@ def valid_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
     :param loss_func: loss functions used
     :param epoch_idx: index of the epoch
     :param device: device to calculate on
+    :param arc_face_module: if is provided, then arcFace is used during training
     :return: tuple with metrics
     """
 
@@ -152,6 +162,9 @@ def valid_one_epoch(model: torch.nn.Module, dataloader: DataLoader,
             label = dataset_element['label'].to(device)
 
             result = model(image)
+
+            if arc_face_module:
+                result = arc_face_module(result, label)
 
             loss_value = loss_func(result, label)
 
