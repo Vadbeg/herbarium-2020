@@ -5,24 +5,25 @@ import torch
 import torchsummary
 
 
-
 class HerbariumNet(torch.nn.Module):
     """Neural network class"""
 
     def __init__(self, model_type: str, pretrained: bool = True,
-                 num_of_output_nodes: int = 1000, use_arc_face: bool = False):
+                 num_of_output_nodes: int = 1000, get_embeddings: bool = False):
         """
         Init class method
 
         :param model_type: model type (resnet18, effnet)
         :param pretrained: if True uses pretrained weights for network
         :param num_of_output_nodes: number of output network nodes
-        :param use_arc_face: if True uses arc face layer instead fc layer
+        :param get_embeddings: if True uses arc face layer instead fc layer
         """
 
         super().__init__()
 
-        backbone = timm.create_model(model_type, pretrained=pretrained)
+        # backbone = timm.create_model(model_type, pretrained=pretrained, output_stride=16)
+        backbone = timm.create_model(model_type, pretrained=pretrained, output_stride=32)
+        # backbone = timm.create_model(model_type, pretrained=pretrained)
 
         if 'resnet' in model_type:
             self.n_features = backbone.fc.in_features
@@ -32,11 +33,15 @@ class HerbariumNet(torch.nn.Module):
             raise NotImplementedError(f'No num_features for this network type')
 
         self.backbone = torch.nn.Sequential(*backbone.children())[:-2]
+
+        # self.backbone[-1] = self.backbone[-1][0]
+        # self.backbone[-1].downsample[0].stride = 1
+
         self.classifier = torch.nn.Linear(self.n_features, num_of_output_nodes)
 
         self.pool = torch.nn.AdaptiveAvgPool2d((1, 1))
 
-        self.use_arc_face = use_arc_face
+        self.get_embeddings = get_embeddings
 
     def forward_features(self, x: torch.tensor) -> torch.tensor:
         """
@@ -62,7 +67,7 @@ class HerbariumNet(torch.nn.Module):
 
         x = self.pool(feats).view(x.size(0), -1)
 
-        if not self.use_arc_face:
+        if not self.get_embeddings:
             x = self.classifier(x)
 
         return x
@@ -70,5 +75,6 @@ class HerbariumNet(torch.nn.Module):
 
 if __name__ == '__main__':
     network = HerbariumNet(model_type='resnet18', pretrained=False, num_of_output_nodes=2721).to('cpu')
+    print(network)
 
-    torchsummary.summary(network, input_size=(3, 320, 320), device='cpu')
+    # torchsummary.summary(network, input_size=(3, 320, 320), device='cpu')
